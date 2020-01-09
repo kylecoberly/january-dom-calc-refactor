@@ -2,89 +2,66 @@ let firstOperand = ""
 let secondOperand = ""
 let toFirstOperand = true
 
-document.addEventListener("DOMContentLoaded", () => {
+function mathOperation(operator){
+    if (toFirstOperand) {
+        firstOperand += operator
+        toFirstOperand = false
+    } else {
+        firstOperand = eval(firstOperand + secondOperand)
+        firstOperand += operator
+        secondOperand = ""
+    }
+}
 
-    const screenDiv = document.getElementById("screen")
-    const buttonsDiv = document.querySelector(".buttons")
-    const operatorButtons = document.getElementsByClassName("operator")
-    const zeroButton = document.getElementById("zero")
-    const clearButton = document.getElementById("clear")
-
-
-    buttonsDiv.addEventListener("click", (event) => {
-        console.log(event.target.textContent)
-        if (!isNaN(event.target.textContent)) {
-            numberClicked(event)
-        } else {
-            operatorClicked(event)
-        }
-    })
-
-    function numberClicked(event) {
+const operations = {
+    "C"(screenDiv){
+        screenDiv.innerText = ""
+        firstOperand = ""
+        secondOperand = ""
+        toFirstOperand = true
+    },
+    "+"(screenDiv){
+        mathOperation("+")
+    },
+    "-"(screenDiv){
+        mathOperation("-")
+    },
+    "x"(screenDiv){
+        mathOperation("*")
+    },
+    "÷"(screenDiv){
+        mathOperation("/")
+    },
+    "="(screenDiv){
+        firstOperand = eval(firstOperand + secondOperand)
+        secondOperand = ""
+        toFirstOperand = false
+    },
+    "number"(screenDiv, number){
         if (toFirstOperand){
-            firstOperand += event.target.textContent
+            firstOperand += number
         } else {
-            secondOperand += event.target.textContent
+            secondOperand += number
         }
         screenDiv.innerText = firstOperand + secondOperand
     }
+}
 
-    function operatorClicked(event) {
-        switch (event.target.textContent) {
-            case "C":
-                screenDiv.innerText = ""
-                firstOperand = ""
-                secondOperand = ""
-                toFirstOperand = true
-                break
-            case "+":
-                if (toFirstOperand) {
-                    firstOperand += "+"
-                    toFirstOperand = false
-                } else {
-                    firstOperand = eval(firstOperand + secondOperand)
-                    firstOperand += "+"
-                    secondOperand = ""
-                }
-                break
-            case "-":
-                if (toFirstOperand) {
-                    firstOperand += "-"
-                    toFirstOperand = false
-                } else {
-                    firstOperand = eval(firstOperand + secondOperand)
-                    firstOperand += "-"
-                    secondOperand = ""
-                }
-                break
-            case "x":
-                if (toFirstOperand) {
-                    firstOperand += "*"
-                    toFirstOperand = false
-                } else {
-                    firstOperand = eval(firstOperand + secondOperand)
-                    firstOperand += "*"
-                    secondOperand = ""
-                }
-                break
-            case "÷":
-                if (toFirstOperand) {
-                    firstOperand += "/"
-                    toFirstOperand = false
-                } else {
-                    firstOperand = eval(firstOperand + secondOperand)
-                    firstOperand += "/"
-                    secondOperand = ""
-                }
-                break
-            case "=":
-                firstOperand = eval(firstOperand + secondOperand)
-                secondOperand = ""
-                toFirstOperand = false
-                break
-            default:
-                break
-        }
+function loadCalculator(){
+    const screenDiv = document.querySelector("#screen")
+
+    const buttonsDiv = document.querySelector(".buttons")
+    buttonsDiv.addEventListener("click", performOperation(screenDiv))
+}
+
+function performOperation(screenDiv) {
+    return event => {
+        operations[event.target.textContent]
+            ? operations[event.target.textContent](screenDiv)
+            : operations["number"](screenDiv, event.target.textContent)
+
         screenDiv.innerText = firstOperand + secondOperand
     }
-})
+}
+
+document.addEventListener("DOMContentLoaded", loadCalculator)
